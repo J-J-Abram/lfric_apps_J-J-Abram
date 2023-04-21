@@ -13,7 +13,7 @@ contains
   end subroutine preprocessed_alg
 
 #ifdef NOT_SET
-This is just broken syntax guff which should cause a failure.
+! Nothing happening here.
 #endif
 
 end module preprocessed_alg_mod
