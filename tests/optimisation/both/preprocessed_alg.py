@@ -21,6 +21,6 @@ def trans(psy):
         loop_schedule.addchild(add_node)
 
         # Take a look at what we've done
-        schedule.view()
+        print(schedule.view())
 
     return psy
