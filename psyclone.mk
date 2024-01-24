@@ -18,6 +18,7 @@ ALGORITHM_f_FILES := $(patsubst $(SOURCE_DIR)/%.x90, \
 
 DIRECTORIES := $(patsubst $(SOURCE_DIR)%,$(WORKING_DIR)%, \
                           $(shell find $(SOURCE_DIR) -type d -printf '%p/\n'))
+PSYCLONE_CONFIG_FILE := $(ROOT_DIR)/etc/psyclone.cfg
 
 .PHONY: psyclone
 psyclone: $(ALGORITHM_F_FILES) $(ALGORITHM_f_FILES)
@@ -41,7 +42,9 @@ $$(SOURCE_DIR)/psy/$$(notdir $$*)_psy.f90 $(WORKING_DIR)/%_psy.f90
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$$*.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - local optimisation,$(subst $(SOURCE_DIR)/,,$<))
-	$Qpsyclone -api dynamo0.3 -l all -d $(WORKING_DIR) \
+	$QPYTHONPATH=$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api dynamo0.3 \
+	           -l all -d $(WORKING_DIR) \
+	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -s $(OPTIMISATION_PATH)/$*.py \
 	           -oalg $(WORKING_DIR)/$*.f90 \
 	           -opsy $(WORKING_DIR)/$*_psy.f90 $<
@@ -51,7 +54,9 @@ $(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$$*.py | $$(dir $$@)
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/global.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - global optimisation,$(subst $(SOURCE_DIR)/,,$<))
-	$Qpsyclone -api dynamo0.3 -l all -d $(WORKING_DIR) \
+	$QPYTHONPATH=$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api dynamo0.3 \
+	           -l all -d $(WORKING_DIR) \
+	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -s $(OPTIMISATION_PATH)/global.py \
 	           -oalg  $(WORKING_DIR)/$*.f90 \
 	           -opsy $(WORKING_DIR)/$*_psy.f90 $<
@@ -61,7 +66,9 @@ $(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/global.py | $$(dir $$@)
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 | $$(dir $$@)
 	$(call MESSAGE,PSyclone,$(subst $(SOURCE_DIR)/,,$<))
-	$Qpsyclone -api dynamo0.3 -l all -d $(WORKING_DIR) \
+	$QPYTHONPATH=$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api dynamo0.3 \
+	           -l all -d $(WORKING_DIR) \
+	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -oalg  $(WORKING_DIR)/$*.f90 \
 	           -opsy $(WORKING_DIR)/$*_psy.f90 $<
 
