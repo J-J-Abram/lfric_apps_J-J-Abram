@@ -16,7 +16,7 @@
       ! Call kernels and communication routines
       !
       DO df=1,one_proxy%vspace%get_last_dof_annexed()
-        one_proxy%data(df) = 3.0
+        one_proxy%data(df) = 3.0_r_def
       END DO
       !
       ! Set halos dirty/clean for fields modified in the above loop
