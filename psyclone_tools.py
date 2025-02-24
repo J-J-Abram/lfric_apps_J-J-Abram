@@ -15,6 +15,8 @@ from psyclone.transformations import (Dynamo0p3ColourTrans,
                                       Dynamo0p3OMPLoopTrans,
                                       OMPParallelTrans,
                                       Dynamo0p3RedundantComputationTrans)
+from psyclone.psyir.nodes import Loop, Routine
+from psyclone.psyGen import InvokeSchedule
 
 
 # List of allowed 'setval_*' built-ins for redundant computation transformation
@@ -22,7 +24,7 @@ SETVAL_BUILTINS = ["setval_c"]
 
 
 # -----------------------------------------------------------------------------
-def redundant_computation_setval(psy):
+def redundant_computation_setval(psyir):
     '''
     Applies the redundant computation transformation to loops over DoFs
     for the initialision built-ins, 'setval_*'.
@@ -39,9 +41,8 @@ def redundant_computation_setval(psy):
     into the halos. This transform causes them to do so, and so permits
     developers to set safe values in halos.
 
-    :param psy: the PSy object that PSyclone has constructed for the
-                'invoke'(s) found in the Algorithm file.
-    :type psy: :py:class:`psyclone.dynamo0p3.DynamoPSy`
+    :param psyir: the PSyIR of the PSy-layer.
+    :type psyir: :py:class:`psyclone.psyir.nodes.FileContainer`
 
     :raises Exception: if there is more than one built-in call per DoF loop.
 
@@ -49,14 +50,11 @@ def redundant_computation_setval(psy):
     # Import redundant computation transformation
     rtrans = Dynamo0p3RedundantComputationTrans()
 
-    # Loop over all the Invokes in the PSy object
-    for invoke in psy.invokes.invoke_list:
-
-        schedule = invoke.schedule
-
+    # Loop over all the InvokeSchedule in the PSyIR object
+    for subroutine in psyir.walk(InvokeSchedule):
         # Make setval_* built-ins compute redundantly to the level-1 halo
         # if they are in their own loop
-        for loop in schedule.loops():
+        for loop in subroutine.loops():
             if loop.iteration_space == "dof":
                 if len(loop.kernels()) != 1:
                     raise Exception(
@@ -67,82 +65,74 @@ def redundant_computation_setval(psy):
 
 
 # -----------------------------------------------------------------------------
-def colour_loops(psy):
+def colour_loops(psyir):
     '''
     Applies the colouring transformation to all applicable loops.
     It creates the instance of `Dynamo0p3ColourTrans` only once.
 
-    :param psy: the PSy object that PSyclone has constructed for the
-                'invoke'(s) found in the Algorithm file.
-    :type psy: :py:class:`psyclone.dynamo0p3.DynamoPSy`
+    :param psyir: the PSyIR of the PSy-layer.
+    :type psyir: :py:class:`psyclone.psyir.nodes.FileContainer`
 
     '''
     const = LFRicConstants()
     ctrans = Dynamo0p3ColourTrans()
 
-    # Loop over all the Invokes in the PSy object
-    for invoke in psy.invokes.invoke_list:
-
-        schedule = invoke.schedule
+    # Loop over all the subroutines in the PSyIR object
+    for subroutine in psyir.walk(Routine):
 
         # Colour loops over cells unless they are on discontinuous
         # spaces or over DoFs
-        for loop in schedule.loops():
-            if loop.iteration_space == "cell_column" \
-                and loop.field_space.orig_name \
-                    not in const.VALID_DISCONTINUOUS_NAMES:
-                ctrans.apply(loop)
+        for child in subroutine.children:
+            if isinstance(child, Loop) \
+               and child.iteration_space.endswith("cell_column") \
+               and child.field_space.orig_name \
+               not in const.VALID_DISCONTINUOUS_NAMES:
+                ctrans.apply(child)
 
 
 # -----------------------------------------------------------------------------
-def openmp_parallelise_loops(psy):
+def openmp_parallelise_loops(psyir):
     '''
     Applies OpenMP Loop transformation to each applicable loop.
 
-    :param psy: the PSy object that PSyclone has constructed for the
-                'invoke'(s) found in the Algorithm file.
-    :type psy: :py:class:`psyclone.dynamo0p3.DynamoPSy`
+    :param psyir: the PSyIR of the PSy-layer.
+    :type psyir: :py:class:`psyclone.psyir.nodes.FileContainer`
 
     '''
     otrans = Dynamo0p3OMPLoopTrans()
     oregtrans = OMPParallelTrans()
 
-    # Loop over all the Invokes in the PSy object
-    for invoke in psy.invokes.invoke_list:
-
-        schedule = invoke.schedule
-
+    # Loop over all the InvokeSchedule in the PSyIR object
+    for subroutine in psyir.walk(InvokeSchedule):
         # Add OpenMP to loops unless they are over colours or are null
-        for loop in schedule.loops():
+        for loop in subroutine.loops():
             if loop.loop_type not in ["colours", "null"]:
                 oregtrans.apply(loop)
                 otrans.apply(loop, options={"reprod": True})
 
 
 # -----------------------------------------------------------------------------
-def view_transformed_schedule(psy):
+def view_transformed_schedule(psyir):
     '''
     Provides view of transformed Invoke schedule in the PSy-layer.
 
-    :param psy: the PSy object that PSyclone has constructed for the
-                'invoke'(s) found in the Algorithm file.
-    :type psy: :py:class:`psyclone.dynamo0p3.DynamoPSy`
+    :param psyir: the PSyIR of the PSy-layer.
+    :type psyir: :py:class:`psyclone.psyir.nodes.FileContainer`
 
     '''
     setval_count = 0
 
-    # Loop over all the Invokes in the PSy object
-    for invoke in psy.invokes.invoke_list:
+    # Loop over all the Invokes in the PSyIR object
+    for subroutine in psyir.walk(InvokeSchedule):
 
-        print(f"Transformed invoke '{invoke.name}' ...")
-        schedule = invoke.schedule
+        print(f"Transformed invoke '{subroutine.name}' ...")
 
         # Count instances of setval_* built-ins
-        for loop in schedule.loops():
+        for loop in subroutine.loops():
             if loop.iteration_space == "dof":
                 if loop.kernels()[0].name in SETVAL_BUILTINS:
                     setval_count += 1
 
         # Take a look at what we have done
         print(f"Found {setval_count} {SETVAL_BUILTINS} calls")
-        print(schedule.view())
+        print(subroutine.view())
