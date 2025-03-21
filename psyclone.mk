@@ -8,6 +8,9 @@
 # and kernels in SOURCE_DIR. Transformation scripts are sought in
 # OPTIMISATION_PATH.
 #
+# Set the DSL Method in use to collect the correct transformation files.
+DSL = psykal
+#
 ALGORITHM_F_FILES := $(patsubst $(SOURCE_DIR)/%.X90, \
                                 $(WORKING_DIR)/%.f90, \
                                 $(shell find $(SOURCE_DIR) -name '*.X90' -print))
@@ -40,24 +43,24 @@ $$(SOURCE_DIR)/psy/$$(notdir $$*)_psy.f90 $(WORKING_DIR)/%_psy.f90
 # Where an optimisation script exists for a specific file, use it.
 #
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
-$(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$$*.py | $$(dir $$@)
+$(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$(DSL)/$$*.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - local optimisation,$(subst $(SOURCE_DIR)/,,$<))
 	$QPYTHONPATH=$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api lfric \
 	           -l all -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
-	           -s $(OPTIMISATION_PATH)/$*.py \
+	           -s $(OPTIMISATION_PATH)/$(DSL)/$*.py \
 	           -oalg $(WORKING_DIR)/$*.f90 \
 	           -opsy $(WORKING_DIR)/$*_psy.f90 $<
 
 # Where a global optimisation script exists, use it.
 #
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
-$(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/global.py | $$(dir $$@)
+$(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/$(DSL)/global.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - global optimisation,$(subst $(SOURCE_DIR)/,,$<))
 	$QPYTHONPATH=$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api lfric \
 	           -l all -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
-	           -s $(OPTIMISATION_PATH)/global.py \
+	           -s $(OPTIMISATION_PATH)/$(DSL)/global.py \
 	           -oalg  $(WORKING_DIR)/$*.f90 \
 	           -opsy $(WORKING_DIR)/$*_psy.f90 $<
 
