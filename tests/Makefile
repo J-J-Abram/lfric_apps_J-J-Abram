@@ -22,7 +22,7 @@ no-optimisation/confirm: no-optimisation/invoke
 
 no-optimisation/invoke:
 	$(info *** No optimisation)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Tests operation with a global transformation script. Both preprocessed and
 # non-preprocessed algorithms are present.
@@ -39,7 +39,7 @@ global-optimisation/confirm: global-optimisation/invoke
 
 global-optimisation/invoke:
 	$(info *** Global optimisation)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Tests operation with a transformation script for only one of the algorithms.
 # Both preprocessed and non-preprocessed algorithms are present.
@@ -56,7 +56,7 @@ local-optimisation/confirm: local-optimisation/invoke
 
 local-optimisation/invoke:
 	$(info *** Local optimisation)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Tests with both global and local transformation scripts. Both preprocessed
 # and non-preprocessed algorithms are present.
@@ -73,7 +73,7 @@ both-optimisation/confirm: both-optimisation/invoke
 
 both-optimisation/invoke:
 	$(info *** Both optimisations)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Tests operation with a handwriten PSy source.
 #
@@ -88,7 +88,7 @@ override/confirm: override/invoke
 
 override/invoke:
 	$(info *** Override PSy layer)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Tests operation with a handwriten PSy source and global optimisation.
 #
@@ -104,7 +104,7 @@ override-global-opt/confirm: override-global-opt/invoke
 
 override-global-opt/invoke:
 	$(info *** Override PSy layer)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Tests operation with a handwriten PSy source and local optimisation.
 #
@@ -120,7 +120,7 @@ override-local-opt/confirm: override-local-opt/invoke
 
 override-local-opt/invoke:
 	$(info *** Override PSy layer)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Tests operation with a handwriten PSy source and both global and local 
 # optimisation.
@@ -137,7 +137,7 @@ override-both-opt/confirm: override-both-opt/invoke
 
 override-both-opt/invoke:
 	$(info *** Override PSy layer)
-	$(MAKE) -f ../psyclone.mk
+	$(MAKE) -f ../psyclone_psykal.mk
 
 # Clean up after ourselves.
 #
