@@ -15,7 +15,6 @@ def trans(psyir):
     """
     # Loop over all of the InvokeSchedule in the PSyIR object
     for subroutine in psyir.walk(InvokeSchedule):
-
         print(f"Transforming invoke '{subroutine.name}' ...")
 
         loop = subroutine.loops()[0]

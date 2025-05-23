@@ -5,19 +5,21 @@
 # -----------------------------------------------------------------------------
 
 
-'''
+"""
 This file contains frequently used transformations to simplify
 their application in PSyclone optimisations scripts.
 
-'''
-from psyclone.domain.lfric import LFRicConstants
-from psyclone.transformations import (Dynamo0p3ColourTrans,
-                                      Dynamo0p3OMPLoopTrans,
-                                      OMPParallelTrans,
-                                      Dynamo0p3RedundantComputationTrans)
-from psyclone.psyir.nodes import Loop, Routine
-from psyclone.psyGen import InvokeSchedule
+"""
 
+from psyclone.domain.lfric import LFRicConstants
+from psyclone.psyGen import InvokeSchedule
+from psyclone.psyir.nodes import Loop, Routine
+from psyclone.transformations import (
+    Dynamo0p3ColourTrans,
+    Dynamo0p3OMPLoopTrans,
+    Dynamo0p3RedundantComputationTrans,
+    OMPParallelTrans,
+)
 
 # List of allowed 'setval_*' built-ins for redundant computation transformation
 SETVAL_BUILTINS = ["setval_c"]
@@ -25,7 +27,7 @@ SETVAL_BUILTINS = ["setval_c"]
 
 # -----------------------------------------------------------------------------
 def redundant_computation_setval(psyir):
-    '''
+    """
     Applies the redundant computation transformation to loops over DoFs
     for the initialision built-ins, 'setval_*'.
 
@@ -46,7 +48,7 @@ def redundant_computation_setval(psyir):
 
     :raises Exception: if there is more than one built-in call per DoF loop.
 
-    '''
+    """
     # Import redundant computation transformation
     rtrans = Dynamo0p3RedundantComputationTrans()
 
@@ -59,46 +61,48 @@ def redundant_computation_setval(psyir):
                 if len(loop.kernels()) != 1:
                     raise Exception(
                         f"Expecting loop to contain 1 call but found "
-                        f"'{len(loop.kernels())}'")
+                        f"'{len(loop.kernels())}'"
+                    )
                 if loop.kernels()[0].name in SETVAL_BUILTINS:
                     rtrans.apply(loop, options={"depth": 1})
 
 
 # -----------------------------------------------------------------------------
 def colour_loops(psyir):
-    '''
+    """
     Applies the colouring transformation to all applicable loops.
     It creates the instance of `Dynamo0p3ColourTrans` only once.
 
     :param psyir: the PSyIR of the PSy-layer.
     :type psyir: :py:class:`psyclone.psyir.nodes.FileContainer`
 
-    '''
+    """
     const = LFRicConstants()
     ctrans = Dynamo0p3ColourTrans()
 
     # Loop over all the subroutines in the PSyIR object
     for subroutine in psyir.walk(Routine):
-
         # Colour loops over cells unless they are on discontinuous
         # spaces or over DoFs
         for child in subroutine.children:
-            if isinstance(child, Loop) \
-               and child.iteration_space.endswith("cell_column") \
-               and child.field_space.orig_name \
-               not in const.VALID_DISCONTINUOUS_NAMES:
+            if (
+                isinstance(child, Loop)
+                and child.iteration_space.endswith("cell_column")
+                and child.field_space.orig_name
+                not in const.VALID_DISCONTINUOUS_NAMES
+            ):
                 ctrans.apply(child)
 
 
 # -----------------------------------------------------------------------------
 def openmp_parallelise_loops(psyir):
-    '''
+    """
     Applies OpenMP Loop transformation to each applicable loop.
 
     :param psyir: the PSyIR of the PSy-layer.
     :type psyir: :py:class:`psyclone.psyir.nodes.FileContainer`
 
-    '''
+    """
     otrans = Dynamo0p3OMPLoopTrans()
     oregtrans = OMPParallelTrans()
 
@@ -113,18 +117,17 @@ def openmp_parallelise_loops(psyir):
 
 # -----------------------------------------------------------------------------
 def view_transformed_schedule(psyir):
-    '''
+    """
     Provides view of transformed Invoke schedule in the PSy-layer.
 
     :param psyir: the PSyIR of the PSy-layer.
     :type psyir: :py:class:`psyclone.psyir.nodes.FileContainer`
 
-    '''
+    """
     setval_count = 0
 
     # Loop over all the Invokes in the PSyIR object
     for subroutine in psyir.walk(InvokeSchedule):
-
         print(f"Transformed invoke '{subroutine.name}' ...")
 
         # Count instances of setval_* built-ins
