@@ -81,9 +81,15 @@ $(WORKING_DIR)/%.x90 | $$(dir $$@)
 .PRECIOUS: $(WORKING_DIR)/%.x90
 # Perform preprocessing for big X90 files.
 #
+ifeq ("$(FORTRAN_COMPILER)", "nvfortran")
+$(WORKING_DIR)/%.x90: $(SOURCE_DIR)/%.X90 | $$(dir $$@)
+	$(call MESSAGE,Preprocessing, $(subst $(SOURCE_DIR)/,,$<))
+	$Q$(FPP) $(FPPFLAGS) $(MACRO_ARGS) -o $@ $<
+else
 $(WORKING_DIR)/%.x90: $(SOURCE_DIR)/%.X90 | $$(dir $$@)
 	$(call MESSAGE,Preprocessing, $(subst $(SOURCE_DIR)/,,$<))
 	$Q$(FPP) $(FPPFLAGS) $(MACRO_ARGS) $< $@
+endif
 
 # Little x90 files are just copied to the workspace.
 #
