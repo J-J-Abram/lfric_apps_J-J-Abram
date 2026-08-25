@@ -67,6 +67,10 @@ ifneq ("$(PSYCLONE_TRANSFORMATION)","none")
   endif
 endif
 
+# Ensure all nested PSyclone calls (including core component imports)
+# can resolve lfric_apps transformation helpers.
+export PYTHONPATH := $(APPS_ROOT_DIR)/interfaces/build/psyclone_transformations_library:$(PYTHONPATH)
+
 .PHONY: default
 default: build
 	$(Q)echo > /dev/null
