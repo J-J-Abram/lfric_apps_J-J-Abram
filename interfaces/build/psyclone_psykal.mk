@@ -16,6 +16,9 @@ DSL = psykal
 PSYCLONE_PSYKAL_EXTRAS ?= -l all
 #
 
+# Path to psyclone transformations library
+TRANSFORMATION_LIB := $(abspath ../../interfaces/build/psyclone_transformations_library)
+
 ALGORITHM_F_FILES := $(patsubst $(SOURCE_DIR)/%.X90, \
                                 $(WORKING_DIR)/%.f90, \
                                 $(shell find $(SOURCE_DIR) -name '*.X90' -print))
@@ -27,7 +30,9 @@ ALGORITHM_f_FILES := $(patsubst $(SOURCE_DIR)/%.x90, \
 DIRECTORIES := $(patsubst $(SOURCE_DIR)%,$(WORKING_DIR)%, \
                           $(shell find $(SOURCE_DIR) -type d -printf '%p/\n'))
 PSYCLONE_CONFIG_FILE ?= $(CORE_ROOT_DIR)/etc/psyclone.cfg
-PSYCLONE_TRANSFORMATIONS_LIBRARY ?= $(APPS_ROOT_DIR)/interfaces/build/psyclone_transformations_library
+
+
+# PSYCLONE_TRANSFORMATIONS_LIBRARY ?= $(APPS_ROOT_DIR)/interfaces/build/psyclone_transformations_library
 
 .PHONY: psyclone
 psyclone: $(ALGORITHM_F_FILES) $(ALGORITHM_f_FILES)
@@ -51,7 +56,7 @@ $$(SOURCE_DIR)/psy/$$(notdir $$*)_psy.f90 $(WORKING_DIR)/%_psy.f90
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$(DSL)/$$*.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - local optimisation,$(subst $(SOURCE_DIR)/,,$<))
-	$QPYTHONPATH=$(PSYCLONE_TRANSFORMATIONS_LIBRARY):$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api lfric \
+	$QPYTHONPATH=$(abspath $(OPTIMISATION_PATH)/$(DSL)):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone -api lfric \
 	           -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -s $(OPTIMISATION_PATH)/$(DSL)/$*.py \
@@ -66,7 +71,7 @@ $(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$(DSL)/$$*.py | $$(dir $$@)
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/$(DSL)/global.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - global optimisation,$(subst $(SOURCE_DIR)/,,$<))
-	$QPYTHONPATH=$(PSYCLONE_TRANSFORMATIONS_LIBRARY):$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api lfric \
+	$QPYTHONPATH=$(abspath $(OPTIMISATION_PATH)/$(DSL)):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone -api lfric \
 	           -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -s $(OPTIMISATION_PATH)/$(DSL)/global.py \
@@ -81,7 +86,7 @@ $(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/$(DSL)/global.py | $$(dir $$@)
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 | $$(dir $$@)
 	$(call MESSAGE,PSyclone,$(subst $(SOURCE_DIR)/,,$<))
-	$QPYTHONPATH=$(PSYCLONE_TRANSFORMATIONS_LIBRARY):$(LFRIC_BUILD)/psyclone:$$PYTHONPATH psyclone -api lfric \
+	$QPYTHONPATH=$(abspath $(OPTIMISATION_PATH)/$(DSL)):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone -api lfric \
 	           -l all -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -okern $(WORKING_DIR)/kernel \
