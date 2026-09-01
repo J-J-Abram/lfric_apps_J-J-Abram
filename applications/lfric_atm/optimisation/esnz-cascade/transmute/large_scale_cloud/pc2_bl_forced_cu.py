@@ -13,7 +13,7 @@ execution.
 import logging
 from psyclone.transformations import TransformationError
 from psyclone.psyir.nodes import Loop
-from transmute_psytrans.transmute_functions import (
+from transmute.transmute_functions import (
     get_outer_loops,
     get_compiler,
     first_priv_red_init,

@@ -36,7 +36,7 @@ Future Work:
 """
 import logging
 from psyclone.psyir.nodes import Routine
-from transmute_psytrans.transmute_functions import (
+from transmute.transmute_functions import (
     add_parallel_do_over_meta_segments,
     parallel_regions_for_clustered_loops,
     omp_do_for_heavy_loops,

@@ -17,7 +17,7 @@ the original code are re-inserted for performance and consistency of output.
 import logging
 from psyclone.transformations import TransformationError
 from psyclone.psyir.nodes import (Loop, UnknownDirective)
-from transmute_psytrans.transmute_functions import (
+from transmute.transmute_functions import (
     set_pure_subroutines,
     get_outer_loops,
     get_compiler,

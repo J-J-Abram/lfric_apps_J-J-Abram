@@ -31,7 +31,7 @@ from psyclone.psyir.nodes import (
     Reference,
 )
 from psyclone.transformations import (TransformationError)
-from transmute_psytrans.transmute_functions import (
+from transmute.transmute_functions import (
     loop_replacement_of,
     get_compiler,
     first_priv_red_init,

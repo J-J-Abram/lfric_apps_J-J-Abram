@@ -11,7 +11,7 @@ PSyclone-generated directives to parallelise additional loops.
 import logging
 from psyclone.transformations import TransformationError
 from psyclone.psyir.nodes import Loop
-from transmute_psytrans.transmute_functions import (
+from transmute.transmute_functions import (
     get_outer_loops,
     OMP_PARALLEL_LOOP_DO_TRANS_STATIC,
 )

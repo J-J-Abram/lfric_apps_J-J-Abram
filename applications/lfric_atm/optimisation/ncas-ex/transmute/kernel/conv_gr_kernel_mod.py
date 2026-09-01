@@ -24,7 +24,7 @@ from psyclone.transformations import (
     TransformationError,
 )
 
-from transmute_psytrans.transmute_functions import (
+from transmute.transmute_functions import (
     first_priv_red_init,
     get_compiler,
     add_omp_parallel_region,

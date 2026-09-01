@@ -39,7 +39,7 @@ Future work:
 from psyclone.psyir.nodes import Loop
 from psyclone.transformations import OMPParallelLoopTrans, TransformationError
 from psyclone.psyir.symbols import DataSymbol
-from transmute_psytrans.transmute_functions import (
+from transmute.transmute_functions import (
     first_priv_red_init,
 )
 

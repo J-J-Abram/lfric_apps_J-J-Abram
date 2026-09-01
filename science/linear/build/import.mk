@@ -9,6 +9,6 @@ export PROJECT_SOURCE = $(APPS_ROOT_DIR)/science/linear/source
 import-linear:
 	$Q$(MAKE) $(QUIET_ARG) -f $(LFRIC_BUILD)/extract.mk \
 	          SOURCE_DIR=$(PROJECT_SOURCE)
-	$Q$(MAKE) $(QUIET_ARG) -f $(LFRIC_BUILD)/psyclone/psyclone_psykal.mk \
+	$Q$(MAKE) $(QUIET_ARG) -f $(APPS_ROOT_DIR)/interfaces/build/psyclone_psykal.mk \
 	          SOURCE_DIR=$(PROJECT_SOURCE) \
 	          OPTIMISATION_PATH=$(OPTIMISATION_PATH)
