@@ -11,7 +11,7 @@ the initialisation built-ins generically.
 
 '''
 
-from psykal.psyclone_tools_apps import (redundant_computation_setval, colour_loops,
+from psyclone_transformations_library.psykal_tools.psyclone_tools_apps import (redundant_computation_setval, colour_loops,
                             view_transformed_schedule)
 
 from psyclone.psyir.transformations import OMPParallelTrans

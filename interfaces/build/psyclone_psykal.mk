@@ -18,6 +18,7 @@ PSYCLONE_PSYKAL_EXTRAS ?= -l all
 
 # Path to psyclone transformations library. Resolve from this makefile location
 # so it is independent of the current working directory.
+# used to be ../../interfaces/build/psyclone_transformations_library
 TRANSFORMATION_LIB := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/psyclone_transformations_library)
 
 ALGORITHM_F_FILES := $(patsubst $(SOURCE_DIR)/%.X90, \
