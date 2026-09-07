@@ -22,7 +22,7 @@ from psyclone.transformations import (
     OMPParallelLoopTrans,
     TransformationError,
 )
-from transmute.transmute_functions import (
+from transmute_functions import (
     match_lhs_assignments,
     OMP_PARALLEL_LOOP_DO_TRANS_STATIC,
     OMP_PARALLEL_LOOP_DO_TRANS_DYNAMIC,

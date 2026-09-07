@@ -22,7 +22,7 @@ from psyclone.psyir.nodes import (
     OMPParallelDoDirective,
     OMPParallelDirective,
     OMPDoDirective,)
-from transmute.transmute_functions import (
+from transmute_functions import (
     OMP_PARALLEL_LOOP_DO_TRANS_STATIC
 )
 from script_options import (

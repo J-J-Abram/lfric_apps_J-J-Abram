@@ -20,7 +20,6 @@ export PSYCLONE_TRANSFORMATION ?= minimum
 
 export PROJECT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
-
 export EXTERNAL_DYNAMIC_LIBRARIES = shum
 
 # List of functions from shumlib that may be used by developers during debugging

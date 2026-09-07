@@ -16,10 +16,13 @@ DSL = psykal
 PSYCLONE_PSYKAL_EXTRAS ?= -l all
 #
 
-# Path to psyclone transformations library. Resolve from this makefile location
-# so it is independent of the current working directory.
+# Path containing the psyclone_transformations_library package. Resolve from
+# this makefile location so it is independent of the current working directory.
 # used to be ../../interfaces/build/psyclone_transformations_library
-TRANSFORMATION_LIB := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/psyclone_transformations_library)
+#TRANSFORMATION_LIB := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+TRANSFORMATION_LIB := $(abspath ../../interfaces/psyclone_transformations_library/$(DSL)_tools)
+
+OPTIMISATION_DSL  := $(abspath $(OPTIMISATION_PATH)/$(DSL))
 
 ALGORITHM_F_FILES := $(patsubst $(SOURCE_DIR)/%.X90, \
                                 $(WORKING_DIR)/%.f90, \
@@ -44,11 +47,6 @@ include $(LFRIC_BUILD)/fortran.mk
 
 MACRO_ARGS := $(addprefix -D,$(PRE_PROCESS_MACROS))
 
-# Include both OPTIMISATION_PATH and OPTIMISATION_PATH/psykal so scripts can
-# import local modules either as package imports (psykal.*) or direct modules.
-OPTIMISATION_BASE := $(abspath $(OPTIMISATION_PATH))
-OPTIMISATION_DSL  := $(abspath $(OPTIMISATION_PATH)/$(DSL))
-
 # Where an override file exists in the "psy" directory we invoke PSyclone, then
 # delete the resulting PSy source. The override has been copied as part of the
 # rest of the source.
@@ -63,7 +61,7 @@ $$(SOURCE_DIR)/psy/$$(notdir $$*)_psy.f90 $(WORKING_DIR)/%_psy.f90
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$(DSL)/$$*.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - local optimisation,$(subst $(SOURCE_DIR)/,,$<))
-	PYTHONPATH=$(OPTIMISATION_BASE):$(OPTIMISATION_DSL):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone -api lfric \
+	PYTHONPATH=$(TRANSFORMATION_LIB):$(OPTIMISATION_DSL):$$PYTHONPATH psyclone -api lfric \
 	           -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -s $(OPTIMISATION_PATH)/$(DSL)/$*.py \
@@ -78,8 +76,8 @@ $(WORKING_DIR)/%.x90 $$(OPTIMISATION_PATH)/$(DSL)/$$*.py | $$(dir $$@)
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/$(DSL)/global.py | $$(dir $$@)
 	$(call MESSAGE,PSyclone - global optimisation,$(subst $(SOURCE_DIR)/,,$<))
-	$(call MESSAGE, GLOBAL OPTONAUT: $<, PYTHONPATH = $(OPTIMISATION_BASE) $(OPTIMISATION_DSL) $(TRANSFORMATION_LIB) $$PYTHONPATH)
-	PYTHONPATH=$(OPTIMISATION_BASE):$(OPTIMISATION_DSL):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone -api lfric \
+	$(call MESSAGE, GLOBAL OPTONAUT: $< $(TRANSFORMATION_LIB) $(OPTIMISATION_DSL) $$PYTHONPATH)
+	PYTHONPATH=$(TRANSFORMATION_LIB):$(OPTIMISATION_DSL):$$PYTHONPATH psyclone -api lfric \
 	           -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -s $(OPTIMISATION_PATH)/$(DSL)/global.py \
@@ -94,7 +92,7 @@ $(WORKING_DIR)/%.x90 $(OPTIMISATION_PATH)/$(DSL)/global.py | $$(dir $$@)
 $(WORKING_DIR)/%.f90 $(WORKING_DIR)/%_psy.f90: \
 $(WORKING_DIR)/%.x90 | $$(dir $$@)
 	$(call MESSAGE,PSyclone,$(subst $(SOURCE_DIR)/,,$<))
-	PYTHONPATH=$(OPTIMISATION_BASE):$(OPTIMISATION_DSL):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone -api lfric \
+	PYTHONPATH=$(TRANSFORMATION_LIB):$(OPTIMISATION_DSL):$$PYTHONPATH psyclone -api lfric \
 	           -l all -d $(WORKING_DIR) \
 	           --config $(PSYCLONE_CONFIG_FILE) \
 	           -okern $(WORKING_DIR)/kernel \

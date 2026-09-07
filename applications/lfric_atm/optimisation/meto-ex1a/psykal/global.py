@@ -12,7 +12,17 @@ the initialisation built-ins generically.
 
 '''
 
-from psyclone_transformations_library.psykal_tools.psyclone_tools_apps import (redundant_computation_setval, colour_loops,
+import os
+import sys
+print("PYTHONPATH env var:", os.getenv("PYTHONPATH"))
+print("sys.path:", sys.path)
+print("sys.executable:", sys.executable)
+print("sys.flags.ignore_environment (-E):", sys.flags.ignore_environment)
+_transformation_lib = os.getenv("PYTHONPATH", "").split(":")[0]
+print("psyclone_tools.py present at expected location:",
+      os.path.isfile(os.path.join(_transformation_lib, "psyclone_tools.py")))
+
+from psyclone_tools import (redundant_computation_setval, colour_loops,
                             openmp_parallelise_loops,
                             view_transformed_schedule)
 

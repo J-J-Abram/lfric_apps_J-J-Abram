@@ -17,13 +17,8 @@ DSL := transmute
 PSYCLONE_TRANSMUTE_EXTRAS ?= -l all
 #
 
-# Path to psyclone transformations library. Resolve from this makefile location
-# so it is independent of the current working directory.
-TRANSFORMATION_LIB := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/psyclone_transformations_library)
+TRANSFORMATION_LIB := $(abspath ../../interfaces/psyclone_transformations_library/$(DSL)_tools)
 
-# Include both OPTIMISATION_PATH and OPTIMISATION_PATH/<dsl> so scripts can
-# import helper modules as packages as well as direct modules.
-OPTIMISATION_BASE := $(abspath $(OPTIMISATION_PATH))
 OPTIMISATION_DSL  := $(abspath $(OPTIMISATION_PATH)/$(DSL))
 
 # Find the specific files we wish to pre-processed and PSyclone from physics source
@@ -66,7 +61,7 @@ psyclone: $(SOURCE_F_FILES)
 #
 $(SOURCE_DIR)/%.f90: $(SOURCE_DIR)/%.xu90 $(OPTIMISATION_PATH)/$(DSL)/%.py
 	echo PSyclone with file override script $(OPTIMISATION_PATH_PSY)/$(DSL)/$*.py on $<
-	PYTHONPATH=$(OPTIMISATION_BASE):$(OPTIMISATION_DSL):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone \
+	PYTHONPATH=$(TRANSFORMATION_LIB):$(OPTIMISATION_DSL):$$PYTHONPATH psyclone \
 			-s $(OPTIMISATION_PATH_PSY)/$(DSL)/$*.py \
 			-o $(SOURCE_DIR)/$*.f90 \
 			$(PSYCLONE_TRANSMUTE_EXTRAS) \
@@ -77,7 +72,7 @@ $(SOURCE_DIR)/%.f90: $(SOURCE_DIR)/%.xu90 $(OPTIMISATION_PATH)/$(DSL)/%.py
 .SECONDEXPANSION:
 $(SOURCE_DIR)/%.f90: $(SOURCE_DIR)/%.xu90 $$(dir $$(OPTIMISATION_PATH_PSY)/$$(DSL)/$$*)local.py
 	echo PSyclone with local script $(dir $(OPTIMISATION_PATH_PSY)/$(DSL)/$*)local.py on $<
-	PYTHONPATH=$(OPTIMISATION_BASE):$(OPTIMISATION_DSL):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone \
+	PYTHONPATH=$(TRANSFORMATION_LIB):$(OPTIMISATION_DSL):$$PYTHONPATH psyclone \
 			-s $(dir $(OPTIMISATION_PATH_PSY)/$(DSL)/$*)local.py \
 			-o $(SOURCE_DIR)/$*.f90 \
 			$(PSYCLONE_TRANSMUTE_EXTRAS) \
@@ -87,7 +82,7 @@ $(SOURCE_DIR)/%.f90: $(SOURCE_DIR)/%.xu90 $$(dir $$(OPTIMISATION_PATH_PSY)/$$(DS
 #
 $(SOURCE_DIR)/%.f90: $(SOURCE_DIR)/%.xu90 $(OPTIMISATION_PATH)/$(DSL)/global.py
 	echo PSyclone with global script $(OPTIMISATION_PATH_PSY)/$(DSL)/global.py on $<
-	PYTHONPATH=$(OPTIMISATION_BASE):$(OPTIMISATION_DSL):$(TRANSFORMATION_LIB):$$PYTHONPATH psyclone \
+	PYTHONPATH=$(TRANSFORMATION_LIB):$(OPTIMISATION_DSL):$$PYTHONPATH psyclone \
 			-s $(OPTIMISATION_PATH_PSY)/$(DSL)/global.py \
 			-o $(SOURCE_DIR)/$*.f90 \
 			$(PSYCLONE_TRANSMUTE_EXTRAS) \
